@@ -147,6 +147,8 @@ Exportable sustainability reports (PDF)
 👨‍💻 Author
 
 Jatin
+
+
 AI & Backend Developer
 Focused on building practical, production-ready AI systems.
 
