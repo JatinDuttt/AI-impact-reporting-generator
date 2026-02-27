@@ -165,14 +165,15 @@ async function generateImpact() {
     const impact = data.impact;
 
     output.innerHTML = `
-      <h3>Impact Summary</h3>
+  <h3>Impact Summary</h3>
 
-      <div class="metric">♻ Plastic Saved: ${impact.plastic_saved_grams} g</div>
-      <div class="metric">🌍 Carbon Avoided: ${impact.carbon_avoided_grams} g</div>
-      <div class="metric">📍 Local Sourcing: ${impact.local_sourcing_summary}</div>
+  <div class="metric">♻ Plastic Saved: ${impact.plastic_saved_grams} g</div>
+  <div class="metric">🌍 Carbon Avoided: ${impact.carbon_avoided_grams} g</div>
+  <div class="metric">📍 Local Sourcing: ${impact.local_sourcing_summary}</div>
+  <div class="metric">🧠 Impact Confidence: ${impact.confidence_score}% (${impact.confidence_label})</div>
 
-      <p class="impact">"${impact.impact_statement}"</p>
-    `;
+  <p class="impact">"${impact.impact_statement}"</p>
+`;
 
     output.style.display = "block";
   } catch (err) {
