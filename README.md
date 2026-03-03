@@ -1,4 +1,4 @@
-AI Impact Reporting Generator (Module 3)
+AI Impact Reporting Generator 
 
 An AI-powered sustainability impact reporting system that calculates and presents real-time environmental impact metrics for products, such as plastic saved, carbon emissions avoided, and sourcing impact.
 
