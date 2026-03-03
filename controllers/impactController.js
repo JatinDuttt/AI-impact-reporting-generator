@@ -35,12 +35,21 @@ exports.generateImpact = (req, res) => {
       else if (confidenceScore >= 70) confidenceLabel = "Good";
 
       res.json({
+
         impact: {
+        
           ...impact,
+        
           confidence_score: confidenceScore,
+        
           confidence_label: confidenceLabel
+        
         }
+      
       });
+    
     });
+  
   }, 2500);
+
 };

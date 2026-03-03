@@ -250,15 +250,23 @@ async function generateImpact() {
       <p class="impact" id="impactStatement"></p>
     `;
 
+
     loader.style.display = "none";
+
     output.style.display = "block";
 
+
     animateNumber(document.getElementById("plasticVal"), 0, impact.plastic_saved_grams, 1000);
+
     animateNumber(document.getElementById("carbonVal"), 0, impact.carbon_avoided_grams, 1000);
 
+
     setTimeout(() => {
+
       document.getElementById("confidenceBar").style.width =
-        impact.confidence_score + "%";
+
+      impact.confidence_score + "%";
+
     }, 300);
 
     typeText(document.getElementById("impactStatement"), `"${impact.impact_statement}"`);
@@ -269,7 +277,10 @@ async function generateImpact() {
 
   btn.disabled = false;
 }
+
 </script>
 
+
 </body>
+
 </html>
