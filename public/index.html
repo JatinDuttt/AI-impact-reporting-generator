@@ -2,285 +2,1222 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Impact Reporting Dashboard</title>
-
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(120deg, #e8f5e9, #f1f8e9);
-      padding: 40px;
+    :root {
+      --bg: #f3efe4;
+      --bg-glow: rgba(15, 76, 58, 0.14);
+      --panel: rgba(255, 250, 240, 0.86);
+      --panel-strong: #fffdf7;
+      --surface: #f7f2e8;
+      --text: #173127;
+      --muted: #5c6d63;
+      --line: rgba(23, 49, 39, 0.12);
+      --primary: #0f6a4a;
+      --primary-strong: #0b5139;
+      --accent: #cb8f2d;
+      --danger: #b2452f;
+      --shadow: 0 20px 60px rgba(27, 48, 39, 0.14);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
     }
 
-    .container {
-      max-width: 720px;
-      margin: auto;
-      background: #ffffff;
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, var(--bg-glow), transparent 28%),
+        radial-gradient(circle at 85% 10%, rgba(203, 143, 45, 0.18), transparent 22%),
+        linear-gradient(135deg, #efe8d8 0%, #f8f4eb 48%, #ece4d2 100%);
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .hero-card,
+    .panel,
+    .metric-card,
+    .history-card,
+    .insight-card {
+      backdrop-filter: blur(14px);
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      border-radius: var(--radius-xl);
       padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      animation: fadeIn 0.6s ease-in-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -60px -90px auto;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(15, 106, 74, 0.16), transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(15, 106, 74, 0.08);
+      color: var(--primary-strong);
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
     h1 {
-      text-align: center;
-      color: #2e7d32;
-      margin-bottom: 10px;
+      margin: 18px 0 14px;
+      font-size: clamp(2.2rem, 4vw, 4rem);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      max-width: 10ch;
     }
 
-    .subtitle {
-      text-align: center;
-      color: #555;
-      margin-bottom: 25px;
+    .hero-copy {
+      max-width: 60ch;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin: 0 0 24px;
+    }
+
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .mini-stat {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 253, 247, 0.86);
+      border: 1px solid rgba(23, 49, 39, 0.08);
+    }
+
+    .mini-stat strong {
+      display: block;
+      font-size: 1.35rem;
+      margin-bottom: 4px;
+    }
+
+    .mini-stat span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .panel {
+      border-radius: var(--radius-xl);
+      padding: 26px;
+    }
+
+    .panel h2,
+    .results-header h2,
+    .history-card h2 {
+      margin: 0 0 10px;
+      font-size: 1.35rem;
+      letter-spacing: -0.03em;
+    }
+
+    .panel-copy,
+    .results-subtitle,
+    .history-copy {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 16px;
     }
 
     label {
-      font-weight: bold;
       display: block;
-      margin-top: 15px;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.94rem;
+      letter-spacing: 0.01em;
     }
 
     input {
       width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
+      padding: 15px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(23, 49, 39, 0.16);
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--text);
+      font: inherit;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
     }
 
-    button {
-      margin-top: 25px;
-      width: 100%;
-      padding: 14px;
-      background: #43a047;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
+    input:focus {
+      outline: none;
+      border-color: rgba(15, 106, 74, 0.45);
+      box-shadow: 0 0 0 4px rgba(15, 106, 74, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      border: 1px solid rgba(15, 106, 74, 0.18);
+      background: rgba(15, 106, 74, 0.07);
+      color: var(--primary-strong);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font: inherit;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: transform 0.2s ease, background 0.2s ease;
     }
 
-    button:hover { background: #2e7d32; }
-
-    button:disabled {
-      background: #9e9e9e;
-      cursor: not-allowed;
+    .chip:hover {
+      transform: translateY(-1px);
+      background: rgba(15, 106, 74, 0.12);
     }
 
-    .loader {
-      text-align: center;
-      margin-top: 25px;
-      display: none;
+    .actions {
+      display: grid;
+      gap: 12px;
     }
 
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #ddd;
-      border-top: 4px solid #43a047;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: auto;
-    }
-
-    .progress-bar {
+    button.primary-btn {
       width: 100%;
-      height: 8px;
-      background: #eee;
-      border-radius: 10px;
+      padding: 15px 18px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary) 0%, #127d58 100%);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      box-shadow: 0 18px 28px rgba(15, 106, 74, 0.22);
+    }
+
+    button.primary-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+
+    button.primary-btn:disabled {
+      cursor: wait;
+      opacity: 0.7;
+      transform: none;
+    }
+
+    .status {
+      min-height: 24px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .status.success {
+      color: var(--primary-strong);
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .results-area {
+      display: grid;
+      gap: 20px;
+    }
+
+    .results-header,
+    .history-card {
+      padding: 24px;
+      border-radius: var(--radius-xl);
+    }
+
+    .meta-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .meta-pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(23, 49, 39, 0.06);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .metric-card,
+    .insight-card {
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .metric-card .label,
+    .insight-title {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .metric-value {
+      font-size: clamp(2rem, 3.2vw, 3rem);
+      letter-spacing: -0.05em;
+      margin: 0;
+    }
+
+    .metric-helper {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .confidence-card {
+      display: grid;
+      gap: 16px;
+    }
+
+    .confidence-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .confidence-badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.88rem;
+      background: rgba(203, 143, 45, 0.12);
+      color: #7d5615;
+    }
+
+    .confidence-track {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(23, 49, 39, 0.08);
       overflow: hidden;
-      margin-top: 12px;
-    }
-
-    .progress {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #2e7d32, #66bb6a);
-      animation: loading 2.5s linear forwards;
-    }
-
-    .result {
-      margin-top: 30px;
-      padding: 20px;
-      background: #e8f5e9;
-      border-radius: 8px;
-      display: none;
-      animation: fadeIn 0.5s ease-in-out;
-    }
-
-    .metric {
-      background: #ffffff;
-      padding: 12px;
-      border-radius: 6px;
-      margin: 10px 0;
-      font-weight: bold;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .confidence-bar {
-      width: 100%;
-      height: 10px;
-      background: #ddd;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-top: 6px;
     }
 
     .confidence-fill {
+      width: 0;
       height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #1b5e20, #66bb6a);
-      transition: width 1s ease-in-out;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #d07a2c 0%, #0f6a4a 100%);
+      transition: width 0.8s ease;
     }
 
-    .impact {
-      margin-top: 15px;
-      font-style: italic;
-      color: #1b5e20;
-      min-height: 24px;
+    .statement {
+      margin: 0;
+      line-height: 1.8;
+      font-size: 1rem;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .report-layout {
+      display: grid;
+      gap: 18px;
     }
 
-    @keyframes loading {
-      from { width: 0%; }
-      to { width: 100%; }
+    .report-hero {
+      padding: 24px;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(135deg, rgba(15, 106, 74, 0.08), rgba(203, 143, 45, 0.1));
+      border: 1px solid rgba(23, 49, 39, 0.08);
+      box-shadow: var(--shadow);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .report-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--primary-strong);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .report-title {
+      margin: 16px 0 8px;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      letter-spacing: -0.04em;
+    }
+
+    .report-summary {
+      margin: 0;
+      max-width: 64ch;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 1rem;
+    }
+
+    .highlights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .highlight-card {
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      border: 1px solid rgba(23, 49, 39, 0.08);
+      box-shadow: var(--shadow);
+    }
+
+    .highlight-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .highlight-value {
+      margin: 0;
+      font-size: 1.8rem;
+      letter-spacing: -0.04em;
+    }
+
+    .highlight-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.94rem;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+    }
+
+    .report-section {
+      padding: 22px;
+      border-radius: var(--radius-xl);
+      background: var(--panel);
+      border: 1px solid rgba(23, 49, 39, 0.08);
+      box-shadow: var(--shadow);
+    }
+
+    .section-heading {
+      margin: 0 0 14px;
+      font-size: 1.2rem;
+      letter-spacing: -0.03em;
+    }
+
+    .insight-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .insight-row {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(23, 49, 39, 0.08);
+    }
+
+    .insight-row strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .insight-row span {
+      color: var(--muted);
+      line-height: 1.6;
+      display: block;
+    }
+
+    .report-table {
+      display: grid;
+      gap: 10px;
+    }
+
+    .table-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(23, 49, 39, 0.07);
+    }
+
+    .table-row span:first-child {
+      color: var(--muted);
+    }
+
+    .recommendation-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .recommendation-item {
+      padding: 12px 14px;
+      border-left: 4px solid var(--accent);
+      background: rgba(203, 143, 45, 0.08);
+      border-radius: 0 14px 14px 0;
+      line-height: 1.6;
+    }
+
+    .sourcing-copy {
+      margin: 0;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .placeholder {
+      text-align: center;
+      padding: 36px 22px;
+      border: 1px dashed rgba(23, 49, 39, 0.18);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.45);
+      color: var(--muted);
+    }
+
+    .loading-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(16, 30, 24, 0.42);
+      backdrop-filter: blur(10px);
+      z-index: 30;
+    }
+
+    .loading-modal.active {
+      display: flex;
+    }
+
+    .loading-card {
+      width: min(640px, 100%);
+      padding: 28px;
+      border-radius: 30px;
+      background: linear-gradient(180deg, rgba(255, 251, 244, 0.98), rgba(249, 242, 229, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: 0 28px 80px rgba(20, 38, 31, 0.24);
+    }
+
+    .loading-context {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .loading-pill {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15, 106, 74, 0.1);
+      color: var(--primary-strong);
+      font-size: 0.9rem;
+    }
+
+    .loading-copy {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .loading-details {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .loading-detail {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(23, 49, 39, 0.08);
+    }
+
+    .loading-detail span {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .loading-detail strong {
+      display: block;
+      font-size: 1.02rem;
+      line-height: 1.5;
+    }
+
+    .loading-steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .loading-step {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(15, 106, 74, 0.06);
+      color: var(--text);
+      border: 1px solid rgba(15, 106, 74, 0.08);
+      line-height: 1.55;
+    }
+
+    .loading-bar {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(23, 49, 39, 0.08);
+      margin-top: 14px;
+    }
+
+    .loading-bar span {
+      display: block;
+      width: 40%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(15, 106, 74, 0.2), rgba(15, 106, 74, 0.9), rgba(15, 106, 74, 0.2));
+      animation: shimmer 1.3s infinite ease-in-out;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .history-item {
+      border: 1px solid rgba(23, 49, 39, 0.08);
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.62);
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .history-item:hover {
+      transform: translateY(-1px);
+      border-color: rgba(15, 106, 74, 0.28);
+    }
+
+    .history-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .history-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .empty-history {
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.7;
+    }
+
+    @keyframes shimmer {
+      0% {
+        transform: translateX(-120%);
+      }
+      100% {
+        transform: translateX(300%);
+      }
+    }
+
+    @media (max-width: 960px) {
+      .hero,
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-strip,
+      .metrics-grid,
+      .highlights-grid,
+      .section-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell {
+        width: min(100% - 20px, 1180px);
+        padding-top: 20px;
+      }
+
+      .loading-card {
+        width: 100%;
+      }
+
+      .loading-details {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card,
+      .panel,
+      .results-header,
+      .history-card,
+      .metric-card,
+      .insight-card,
+      .loading-card {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 2.4rem;
+      }
     }
   </style>
 </head>
-
 <body>
+  <main class="page-shell">
+    <section class="hero">
+      <article class="hero-card">
+        <div class="eyebrow">AI Impact Intelligence</div>
+        <h1>Turn product data into a live sustainability story.</h1>
+        <p class="hero-copy">
+          Generate a clearer impact snapshot for each product with dynamic carbon, plastic, and sourcing signals that are easier to read, share, and trust.
+        </p>
+        <div class="stats-strip">
+          <div class="mini-stat">
+            <strong>Live</strong>
+            <span>Instant report rendering from API responses</span>
+          </div>
+          <div class="mini-stat">
+            <strong>Visual</strong>
+            <span>Readable cards, confidence meter, and quick insights</span>
+          </div>
+          <div class="mini-stat">
+            <strong>Reusable</strong>
+            <span>Recent product lookups stay available in this browser</span>
+          </div>
+        </div>
+      </article>
 
-<div class="container">
-  <h1>🌱 AI Impact Report</h1>
-  <p class="subtitle">Measure sustainability impact in real time</p>
+      <aside class="panel">
+        <h2>Generate Product Report</h2>
+        <p class="panel-copy">Enter a product ID to fetch sustainability metrics and build a richer, more dynamic impact summary.</p>
 
-  <label>Product ID</label>
-  <input id="productId" placeholder="e.g. 1" />
+        <div class="form-grid">
+          <div>
+            <label for="productId">Product ID</label>
+            <input id="productId" name="productId" placeholder="Try 1, 2, or 3" inputmode="numeric" />
+          </div>
 
-  <button id="generateBtn" onclick="generateImpact()">Generate Impact</button>
+          <div>
+            <label>Quick Fill</label>
+            <div class="chip-row">
+              <button class="chip" type="button" data-product-id="1">Product 1</button>
+              <button class="chip" type="button" data-product-id="2">Product 2</button>
+              <button class="chip" type="button" data-product-id="3">Product 3</button>
+            </div>
+          </div>
 
-  <div class="loader" id="loader">
-    <div class="spinner"></div>
-    <p>AI is analyzing environmental impact...</p>
-    <div class="progress-bar">
-      <div class="progress"></div>
-    </div>
-  </div>
+          <div class="actions">
+            <button class="primary-btn" id="generateBtn" type="button">Generate Impact Report</button>
+            <div id="statusMessage" class="status" aria-live="polite">Waiting for a product selection.</div>
+          </div>
+        </div>
+      </aside>
+    </section>
 
-  <div id="output" class="result"></div>
-</div>
+    <section class="content-grid">
+      <div class="results-area">
+        <div id="loadingModal" class="loading-modal" aria-hidden="true">
+          <div id="loadingCard" class="loading-card" role="dialog" aria-modal="true" aria-labelledby="loadingHeading">
+            <h2 id="loadingHeading">Analyzing sustainability impact</h2>
+            <p class="results-subtitle">We are pulling the report, calculating confidence, and preparing the dashboard view.</p>
+            <div class="loading-context">
+              <div id="loadingProductPill" class="loading-pill">Waiting for product input</div>
+              <p id="loadingMessage" class="loading-copy">The selected product details will appear here while the search is in progress.</p>
+            </div>
+            <div class="loading-details">
+              <div class="loading-detail">
+                <span>Product ID</span>
+                <strong id="loadingProductIdValue">Not selected</strong>
+              </div>
+              <div class="loading-detail">
+                <span>Product Name</span>
+                <strong id="loadingProductNameValue">Waiting for report lookup</strong>
+              </div>
+            </div>
+            <div class="loading-steps">
+              <div id="loadingStepOne" class="loading-step">Searching the impact database for the selected product.</div>
+              <div id="loadingStepTwo" class="loading-step">Matching report details and extracting sustainability metrics.</div>
+            </div>
+            <div class="loading-bar"><span></span></div>
+          </div>
+        </div>
 
-<script>
-function animateNumber(element, start, end, duration) {
-  let startTime = null;
+        <div class="results-header hero-card">
+          <h2>Impact Overview</h2>
+          <p class="results-subtitle">Each run creates a dynamic summary from the latest API response.</p>
+          <div id="resultsMeta" class="meta-strip">
+            <span class="meta-pill">No report loaded yet</span>
+          </div>
+        </div>
 
-  function animation(currentTime) {
-    if (!startTime) startTime = currentTime;
-    const progress = Math.min((currentTime - startTime) / duration, 1);
-    element.innerText = Math.floor(progress * (end - start) + start);
-    if (progress < 1) {
-      requestAnimationFrame(animation);
-    }
-  }
-  requestAnimationFrame(animation);
-}
-
-function typeText(element, text, speed = 30) {
-  element.innerHTML = "";
-  let i = 0;
-  function typing() {
-    if (i < text.length) {
-      element.innerHTML += text.charAt(i);
-      i++;
-      setTimeout(typing, speed);
-    }
-  }
-  typing();
-}
-
-async function generateImpact() {
-  const btn = document.getElementById("generateBtn");
-  const loader = document.getElementById("loader");
-  const output = document.getElementById("output");
-  const productId = document.getElementById("productId").value;
-
-  if (!productId) {
-    alert("Please enter a product ID");
-    return;
-  }
-
-  btn.disabled = true;
-  loader.style.display = "block";
-  output.style.display = "none";
-
-  try {
-    const res = await fetch("/api/impact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product_id: productId })
-    });
-
-    const data = await res.json();
-    const impact = data.impact;
-
-    output.innerHTML = `
-      <h3>Impact Summary</h3>
-
-      <div class="metric">♻ Plastic Saved: <span id="plasticVal">0</span> g</div>
-      <div class="metric">🌍 Carbon Avoided: <span id="carbonVal">0</span> g</div>
-      <div class="metric">📍 Local Sourcing: ${impact.local_sourcing_summary}</div>
-
-      <div class="metric">
-        🧠 Impact Confidence: ${impact.confidence_score}% (${impact.confidence_label})
-        <div class="confidence-bar">
-          <div class="confidence-fill" id="confidenceBar"></div>
+        <div id="resultsMount">
+          <div class="placeholder">
+            Enter a product ID to load plastic savings, carbon reduction, sourcing context, and a confidence-backed narrative.
+          </div>
         </div>
       </div>
 
-      <p class="impact" id="impactStatement"></p>
-    `;
+      <aside class="history-card">
+        <h2>Recent Reports</h2>
+        <p class="history-copy">Your latest lookups stay here so the dashboard feels more dynamic during demos and testing.</p>
+        <div id="historyList" class="history-list">
+          <p class="empty-history">No recent reports yet. Generate one to populate this panel.</p>
+        </div>
+      </aside>
+    </section>
+  </main>
 
+  <script>
+    const productInput = document.getElementById("productId");
+    const generateBtn = document.getElementById("generateBtn");
+    const statusMessage = document.getElementById("statusMessage");
+    const loadingModal = document.getElementById("loadingModal");
+    const loadingCard = document.getElementById("loadingCard");
+    const loadingProductPill = document.getElementById("loadingProductPill");
+    const loadingMessage = document.getElementById("loadingMessage");
+    const loadingProductIdValue = document.getElementById("loadingProductIdValue");
+    const loadingProductNameValue = document.getElementById("loadingProductNameValue");
+    const loadingStepOne = document.getElementById("loadingStepOne");
+    const loadingStepTwo = document.getElementById("loadingStepTwo");
+    const resultsMeta = document.getElementById("resultsMeta");
+    const resultsMount = document.getElementById("resultsMount");
+    const historyList = document.getElementById("historyList");
+    const HISTORY_KEY = "ai-impact-history";
 
-    loader.style.display = "none";
+    function setStatus(message, tone) {
+      statusMessage.textContent = message;
+      statusMessage.className = tone ? `status ${tone}` : "status";
+    }
 
-    output.style.display = "block";
+    function formatNumber(value) {
+      return new Intl.NumberFormat("en-US").format(Number(value) || 0);
+    }
 
+    function animateNumber(element, end, duration = 900) {
+      const start = 0;
+      let startTime = null;
 
-    animateNumber(document.getElementById("plasticVal"), 0, impact.plastic_saved_grams, 1000);
+      function step(currentTime) {
+        if (!startTime) {
+          startTime = currentTime;
+        }
 
-    animateNumber(document.getElementById("carbonVal"), 0, impact.carbon_avoided_grams, 1000);
+        const progress = Math.min((currentTime - startTime) / duration, 1);
+        const value = Math.floor(start + (end - start) * progress);
+        element.textContent = formatNumber(value);
 
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        }
+      }
 
-    setTimeout(() => {
+      requestAnimationFrame(step);
+    }
 
-      document.getElementById("confidenceBar").style.width =
+    function typeText(element, text, speed = 18) {
+      element.textContent = "";
+      let index = 0;
 
-      impact.confidence_score + "%";
+      function writeNext() {
+        if (index < text.length) {
+          element.textContent += text.charAt(index);
+          index += 1;
+          setTimeout(writeNext, speed);
+        }
+      }
 
-    }, 300);
+      writeNext();
+    }
 
-    typeText(document.getElementById("impactStatement"), `"${impact.impact_statement}"`);
+    function getConfidenceTone(score) {
+      if (score >= 90) {
+        return "High confidence";
+      }
+      if (score >= 80) {
+        return "Strong signal";
+      }
+      if (score >= 70) {
+        return "Good baseline";
+      }
+      return "Needs review";
+    }
 
-  } catch (err) {
-    alert("Failed to generate impact report");
-  }
+    function getPriorityLabel(score) {
+      if (score >= 90) {
+        return "Flagship sustainability candidate";
+      }
+      if (score >= 80) {
+        return "Strong sustainability profile";
+      }
+      if (score >= 70) {
+        return "Promising improvement story";
+      }
+      return "Baseline impact profile";
+    }
 
-  btn.disabled = false;
-}
+    function getRecommendations(impact) {
+      const recommendations = [];
 
-</script>
+      if ((impact.plastic_saved_grams || 0) < 200) {
+        recommendations.push("Increase reusable or low-packaging material choices to strengthen the plastic reduction story.");
+      } else {
+        recommendations.push("Lead with packaging reduction in the report headline because it is one of the strongest signals in this result.");
+      }
 
+      if ((impact.carbon_avoided_grams || 0) < 200) {
+        recommendations.push("Add transport, renewable energy, or production-efficiency details to improve the carbon narrative.");
+      } else {
+        recommendations.push("Highlight emissions avoidance in customer-facing copy because the carbon result is already meaningful.");
+      }
 
+      if ((impact.local_sourcing_summary || "").toLowerCase().includes("local")) {
+        recommendations.push("Keep the sourcing origin visible in the report because local sourcing strengthens credibility and readability.");
+      } else {
+        recommendations.push("If possible, surface sourcing origin data to make this report feel more complete and trustworthy.");
+      }
+
+      return recommendations;
+    }
+
+    function buildMeta(productId, durationMs, impact, meta, product) {
+      const createdAt = meta && meta.generated_at
+        ? new Date(meta.generated_at)
+        : impact.created_at
+          ? new Date(impact.created_at)
+          : new Date();
+      const responseTime = meta && meta.processing_time_ms ? meta.processing_time_ms : durationMs;
+      const items = [
+        product && product.name ? product.name : `Product #${productId}`,
+        `ID #${productId}`,
+        `${responseTime}ms response`,
+        `Generated ${createdAt.toLocaleString()}`
+      ];
+
+      resultsMeta.innerHTML = items
+        .map((item) => `<span class="meta-pill">${item}</span>`)
+        .join("");
+    }
+
+    function saveHistory(entry) {
+      const current = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+      const deduped = current.filter((item) => item.productId !== entry.productId);
+      deduped.unshift(entry);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(deduped.slice(0, 5)));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+
+      if (!history.length) {
+        historyList.innerHTML = '<p class="empty-history">No recent reports yet. Generate one to populate this panel.</p>';
+        return;
+      }
+
+      historyList.innerHTML = history
+        .map((item) => `
+          <button class="history-item" type="button" data-history-id="${item.productId}">
+            <strong>Product #${item.productId}</strong>
+            <span>${item.summary}</span>
+            <span>${item.timestamp}</span>
+          </button>
+        `)
+        .join("");
+    }
+
+    function showLoading(isLoading) {
+      loadingModal.classList.toggle("active", isLoading);
+      loadingModal.setAttribute("aria-hidden", String(!isLoading));
+      generateBtn.disabled = isLoading;
+      document.body.style.overflow = isLoading ? "hidden" : "";
+    }
+
+    function updateLoadingState(productId, stage, product) {
+      const productName = product && product.name ? product.name : "Searching product name...";
+      loadingProductPill.textContent = `Searching Product #${productId}`;
+      loadingProductIdValue.textContent = `#${productId}`;
+      loadingProductNameValue.textContent = productName;
+
+      if (stage === "loading") {
+        loadingMessage.textContent = `You searched for product ID ${productId}. We are checking the database and preparing the impact report details in this popup.`;
+        loadingStepOne.textContent = `Searching for Product #${productId} and matching its record in the sustainability dataset.`;
+        loadingStepTwo.textContent = "Extracting report metrics, confidence, and sourcing details for the final dashboard.";
+        return;
+      }
+
+      if (stage === "success") {
+        loadingProductPill.textContent = `Report Found for Product #${productId}`;
+        loadingMessage.textContent = `${productName} was found and the sustainability report has been extracted successfully.`;
+        loadingStepOne.textContent = `Product match confirmed: ${productName}.`;
+        loadingStepTwo.textContent = "Impact report extracted successfully. Loading the final report view now.";
+        return;
+      }
+
+      loadingProductNameValue.textContent = "Product not found";
+      loadingMessage.textContent = `We could not complete the search for Product #${productId}. Please check the ID and try again.`;
+      loadingStepOne.textContent = `We searched for Product #${productId}, but no matching impact report was returned.`;
+      loadingStepTwo.textContent = "Please verify the product ID and try again.";
+    }
+
+    function renderReport(productId, impact, durationMs, meta, product) {
+      const plasticEquivalent = Math.max(1, Math.round((impact.plastic_saved_grams || 0) / 20));
+      const carbonEquivalent = ((impact.carbon_avoided_grams || 0) / 1000).toFixed(2);
+      const confidenceTone = getConfidenceTone(impact.confidence_score || 0);
+      const priorityLabel = getPriorityLabel(impact.confidence_score || 0);
+      const recommendations = getRecommendations(impact);
+      const productName = product && product.name ? product.name : `Product #${productId}`;
+      const executiveSummary = `${productName} shows ${formatNumber(impact.plastic_saved_grams || 0)} grams of plastic savings and ${formatNumber(impact.carbon_avoided_grams || 0)} grams of carbon avoidance, giving it a ${impact.confidence_label.toLowerCase()} confidence sustainability profile.`;
+
+      resultsMount.innerHTML = `
+        <div class="report-layout">
+          <article class="report-hero">
+            <span class="report-kicker">Impact Report</span>
+            <h3 class="report-title">${priorityLabel}</h3>
+            <p class="report-summary">${executiveSummary}</p>
+          </article>
+
+          <section class="highlights-grid">
+            <article class="highlight-card">
+              <span class="highlight-label">Plastic Saved</span>
+              <p class="highlight-value"><span data-animate="plastic">0</span> g</p>
+              <p class="highlight-note">Equivalent to about ${plasticEquivalent} small plastic bottles avoided.</p>
+            </article>
+
+            <article class="highlight-card">
+              <span class="highlight-label">Carbon Avoided</span>
+              <p class="highlight-value"><span data-animate="carbon">0</span> g</p>
+              <p class="highlight-note">Approximately ${carbonEquivalent} kg of emissions reduction in this report.</p>
+            </article>
+
+            <article class="highlight-card">
+              <span class="highlight-label">Confidence Level</span>
+              <p class="highlight-value">${impact.confidence_score}%</p>
+              <p class="highlight-note">${impact.confidence_label} confidence with a ${confidenceTone.toLowerCase()} assessment.</p>
+            </article>
+          </section>
+
+          <section class="section-grid">
+            <article class="report-section">
+              <h3 class="section-heading">Executive Summary</h3>
+              <div class="insight-list">
+                <div class="insight-row">
+                  <strong>Report Narrative</strong>
+                  <span id="impactStatement" class="statement"></span>
+                </div>
+                <div class="insight-row">
+                  <strong>Sourcing Insight</strong>
+                  <span>${impact.local_sourcing_summary || "Standard sourcing profile."}</span>
+                </div>
+                <div class="insight-row">
+                  <strong>Why It Matters</strong>
+                  <span>This product is currently positioned as a ${priorityLabel.toLowerCase()} based on the available sustainability signals.</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="report-section">
+              <h3 class="section-heading">Report Details</h3>
+              <div class="report-table">
+                <div class="table-row">
+                  <span>Product Name</span>
+                  <strong>${productName}</strong>
+                </div>
+                <div class="table-row">
+                  <span>Product ID</span>
+                  <strong>#${productId}</strong>
+                </div>
+                <div class="table-row">
+                  <span>Plastic Savings</span>
+                  <strong>${formatNumber(impact.plastic_saved_grams || 0)} g</strong>
+                </div>
+                <div class="table-row">
+                  <span>Carbon Avoidance</span>
+                  <strong>${formatNumber(impact.carbon_avoided_grams || 0)} g</strong>
+                </div>
+                <div class="table-row">
+                  <span>Confidence Score</span>
+                  <strong>${impact.confidence_score}%</strong>
+                </div>
+                <div class="table-row">
+                  <span>Sourcing</span>
+                  <strong>${impact.local_sourcing_summary || "Standard"}</strong>
+                </div>
+              </div>
+            </article>
+          </section>
+
+          <article class="report-section">
+            <h3 class="section-heading">Recommended Next Steps</h3>
+            <div class="recommendation-list">
+              ${recommendations.map((item) => `<div class="recommendation-item">${item}</div>`).join("")}
+            </div>
+          </article>
+        </div>
+      `;
+
+      buildMeta(productId, durationMs, impact, meta, product);
+
+      animateNumber(document.querySelector('[data-animate="plastic"]'), impact.plastic_saved_grams || 0);
+      animateNumber(document.querySelector('[data-animate="carbon"]'), impact.carbon_avoided_grams || 0);
+      typeText(document.getElementById("impactStatement"), impact.impact_statement || "No impact statement available.");
+    }
+
+    async function fetchProductDetails(productId) {
+      const response = await fetch(`/api/products/${encodeURIComponent(productId)}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch product details.");
+      }
+
+      return data.product;
+    }
+
+    async function generateImpact(productIdOverride) {
+      const productId = String(productIdOverride || productInput.value).trim();
+
+      if (!productId) {
+        setStatus("Enter a valid product ID before generating a report.", "error");
+        productInput.focus();
+        return;
+      }
+
+      productInput.value = productId;
+      setStatus("Fetching impact data and preparing the dashboard...", "");
+      updateLoadingState(productId, "loading");
+      showLoading(true);
+
+      const startedAt = performance.now();
+
+      try {
+        const product = await fetchProductDetails(productId);
+        updateLoadingState(productId, "loading", product);
+
+        const response = await fetch("/api/impact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ product_id: productId })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to generate impact report.");
+        }
+
+        const durationMs = Math.round(performance.now() - startedAt);
+        const productLabel = data.product && data.product.name ? data.product.name : product && product.name ? product.name : `Product #${productId}`;
+        updateLoadingState(productId, "success", data.product);
+        renderReport(productId, data.impact, durationMs, data.meta, data.product);
+        saveHistory({
+          productId,
+          summary: `${formatNumber(data.impact.plastic_saved_grams)}g plastic saved · ${formatNumber(data.impact.carbon_avoided_grams)}g carbon avoided`,
+          timestamp: new Date().toLocaleString()
+        });
+        setStatus(`Report for ${productLabel} is ready.`, "success");
+        setTimeout(() => showLoading(false), 900);
+      } catch (error) {
+        resultsMount.innerHTML = `
+          <div class="placeholder">
+            ${error.message}
+          </div>
+        `;
+        resultsMeta.innerHTML = '<span class="meta-pill">Request failed</span>';
+        updateLoadingState(productId, "error");
+        setStatus(error.message, "error");
+        setTimeout(() => showLoading(false), 900);
+      }
+    }
+
+    document.querySelectorAll("[data-product-id]").forEach((chip) => {
+      chip.addEventListener("click", () => generateImpact(chip.dataset.productId));
+    });
+
+    historyList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-history-id]");
+      if (!button) {
+        return;
+      }
+
+      generateImpact(button.dataset.historyId);
+    });
+
+    generateBtn.addEventListener("click", () => generateImpact());
+
+    productInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        generateImpact();
+      }
+    });
+
+    renderHistory();
+  </script>
 </body>
-
 </html>

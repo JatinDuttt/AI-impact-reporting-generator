@@ -2,9 +2,9 @@ const express = require("express");
 
 const router = express.Router();
 
-const { generateImpact } = require("../controllers/impactController");
+const { generateImpact, getProductDetails } = require("../controllers/impactController");
 
-
+router.get("/products/:product_id", getProductDetails);
 router.post("/impact", generateImpact);
 
 
