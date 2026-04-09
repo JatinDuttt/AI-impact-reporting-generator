@@ -14,7 +14,8 @@ app.use("/api", impactRoutes);
 app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    message: "Hi I'm Aman"
   });
 });
 
@@ -23,6 +24,6 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 4000;
-// app.listen(PORT, () => {
-//   console.log(`AI Impact Reporting Generator running skjdfbhcnkvjbivu b9p8yh3 on http://localhost:${PORT}`);
-// });
+app.listen(PORT, () => {
+  console.log(`AI Impact Reporting Generator running skjdfbhcnkvjbivu b9p8yh3 on http://localhost:${PORT}`);
+});
